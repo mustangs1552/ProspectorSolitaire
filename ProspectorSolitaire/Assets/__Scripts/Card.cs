@@ -18,7 +18,7 @@ public class Card : MonoBehaviour
     #region Public
     public string suit;
     public int rank;
-    public Color color;
+    public Color color = Color.black;
     public string colS = "Black";
     public List<GameObject> decosGOs = new List<GameObject>();
     public List<GameObject> pipGOs = new List<GameObject>();
@@ -122,4 +122,9 @@ public class CardDefinition
     public string face = "";
     public int rank = 0;
     public List<Decorator> pips = new List<Decorator>();
+
+    public string ToStringCD()
+    {
+        return "Face = " + face + " | " + "Rank = " + rank + " | " + "pips.Count = " + pips.Count;
+    }
 }

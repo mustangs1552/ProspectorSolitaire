@@ -91,6 +91,7 @@ public class Deck : MonoBehaviour
     {
         xmlr = new PT_XMLReader();
         xmlr.Parse(deckXMLText);
+        PrintDebugMsg(deckXMLText);
 
         string s = "xml[0] decorator[0] ";
         s += " type = " + xmlr.xml["xml"][0]["decorator"][0].att("type");
@@ -134,9 +135,9 @@ public class Deck : MonoBehaviour
                     if (xPips[ii].HasAtt("scale")) deco.scale = float.Parse(xPips[ii].att("scale"));
                     cDef.pips.Add(deco);
                 }
-                if (xCardDefs[i].HasAtt("face")) cDef.face = xCardDefs[i].att("face");
-                cardDefs.Add(cDef);
             }
+            if (xCardDefs[i].HasAtt("face")) cDef.face = xCardDefs[i].att("face");
+            cardDefs.Add(cDef);
         }
     }
 
@@ -180,6 +181,11 @@ public class Deck : MonoBehaviour
                 card.colS = "Red";
                 card.color = Color.red;
             }
+            else
+            {
+                card.colS = "Black";
+                card.color = Color.black;
+            }
             card.def = GetCardDefinitionByRank(card.rank);
 
             foreach(Decorator deco in decorators)
@@ -207,7 +213,8 @@ public class Deck : MonoBehaviour
                 tGO.name = deco.type;
                 card.decosGOs.Add(tGO);
             }
-            
+
+            PrintDebugMsg("Card.def = " + card.def.ToStringCD());
             foreach(Decorator pip in card.def.pips)
             {
                 tGO = Instantiate(prefabSprite) as GameObject;
@@ -244,7 +251,7 @@ public class Deck : MonoBehaviour
             card.back = tGO;
 
             card.FaceUp = true;
-
+            
             cards.Add(card);
         }
     }
