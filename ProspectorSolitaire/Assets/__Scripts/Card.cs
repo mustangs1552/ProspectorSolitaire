@@ -24,6 +24,7 @@ public class Card : MonoBehaviour
     public List<GameObject> pipGOs = new List<GameObject>();
     public GameObject back;
     public CardDefinition def;
+    public SpriteRenderer[] spriteRenderers;
     #endregion
 
     #region Private
@@ -37,7 +38,46 @@ public class Card : MonoBehaviour
     #endregion
 
     #region Public
+    public void PopulateSpriteRenderers()
+    {
+        if (spriteRenderers == null || spriteRenderers.Length == 0) spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+    }
 
+    public void SetSortingLayerName(string tSLN)
+    {
+        PopulateSpriteRenderers();
+        foreach (SpriteRenderer tSR in spriteRenderers) tSR.sortingLayerName = tSLN;
+    }
+
+    public void SetSortOrder(int sOrd)
+    {
+        PopulateSpriteRenderers();
+
+        foreach(SpriteRenderer tSR in spriteRenderers)
+        {
+            if(tSR.gameObject == this.gameObject)
+            {
+                tSR.sortingOrder = sOrd;
+                continue;
+            }
+
+            switch(tSR.gameObject.name)
+            {
+                case "back":
+                    tSR.sortingOrder = sOrd + 2;
+                    break;
+                case "face":
+                default:
+                    tSR.sortingOrder = sOrd++;
+                    break;
+            }
+        }
+    }
+
+    public virtual void OnMouseUpAsButton()
+    {
+        PrintDebugMsg(name + " was clicked!");
+    }
     #endregion
 
     #region Private
@@ -87,7 +127,7 @@ public class Card : MonoBehaviour
     // Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
     void Start()
     {
-
+        SetSortOrder(0);
     }
     // This function is called every fixed framerate frame, if the MonoBehaviour is enabled.
     void FixedUpdate()

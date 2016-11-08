@@ -36,7 +36,11 @@ public class CardProspector : Card
     #endregion
 
     #region Public
-
+    public override void OnMouseUpAsButton()
+    {
+        Prospector.S.CardClicked(this);
+        base.OnMouseUpAsButton();
+    }
     #endregion
 
     #region Private
@@ -61,7 +65,7 @@ public class CardProspector : Card
     // Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
     void Start()
     {
-
+        
     }
     // This function is called every fixed framerate frame, if the MonoBehaviour is enabled.
     void FixedUpdate()

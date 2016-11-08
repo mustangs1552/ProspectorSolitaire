@@ -44,7 +44,21 @@ public class Prospector : MonoBehaviour
     #endregion
 
     #region Public
-
+    public void CardClicked(CardProspector cd)
+    {
+        switch(cd.state)
+        {
+            case CardState.target:
+                break;
+            case CardState.drawpile:
+                MoveToDiscard(target);
+                MoveToTarget(Draw());
+                UpdateDrawPile();
+                break;
+            case CardState.tableau:
+                break;
+        }
+    }
     #endregion
 
     #region Private
@@ -87,7 +101,51 @@ public class Prospector : MonoBehaviour
             cp.slotDef = tSD;
             cp.state = CardState.tableau;
 
+            cp.SetSortingLayerName(tSD.layerName);
+
             tableau.Add(cp);
+        }
+
+        MoveToTarget(Draw());
+        UpdateDrawPile();
+    }
+
+    private void MoveToDiscard(CardProspector cd)
+    {
+        cd.state = CardState.discard;
+        discardPile.Add(cd);
+        cd.transform.parent = layoutAnchor;
+        cd.transform.localPosition = new Vector3(layout.multiplier.x * layout.discardPile.x, layout.multiplier.y * layout.discardPile.y, -layout.discardPile.layerID + .5f);
+        cd.FaceUp = true;
+        cd.SetSortingLayerName(layout.discardPile.layerName);
+        cd.SetSortOrder(-100 + discardPile.Count);
+    }
+
+    private void MoveToTarget(CardProspector cd)
+    {
+        if (target != null) MoveToDiscard(target);
+        target = cd;
+        cd.state = CardState.target;
+        cd.transform.parent = layoutAnchor;
+        cd.transform.localPosition = new Vector3(layout.multiplier.x * layout.discardPile.x, layout.multiplier.y * layout.discardPile.y, -layout.discardPile.layerID);
+        cd.FaceUp = true;
+        cd.SetSortingLayerName(layout.discardPile.layerName);
+        cd.SetSortOrder(0);
+    }
+
+    private void UpdateDrawPile()
+    {
+        CardProspector cd;
+        for(int i = 0; i < drawPile.Count; i++)
+        {
+            cd = drawPile[i];
+            cd.transform.parent = layoutAnchor;
+            Vector2 dpStagger = layout.drawPile.stagger;
+            cd.transform.localPosition = new Vector3(layout.multiplier.x * (layout.drawPile.x + i * dpStagger.x), layout.multiplier.y * (layout.drawPile.y + i * dpStagger.y), -layout.drawPile.layerID + .1f * i);
+            cd.FaceUp = false;
+            cd.state = CardState.drawpile;
+            cd.SetSortingLayerName(layout.drawPile.layerName);
+            cd.SetSortOrder(-10 * i);
         }
     }
     #endregion
