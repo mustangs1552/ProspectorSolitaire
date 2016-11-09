@@ -2,6 +2,16 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
+
+public enum ScoreEvent
+{
+    draw,
+    mine,
+    mineGold,
+    gameWin,
+    gameLoss
+}
 
 public class Prospector : MonoBehaviour
 {
@@ -13,6 +23,8 @@ public class Prospector : MonoBehaviour
 
     #region Static
     public static Prospector S;
+    public static int SCORE_FROM_PREV_ROUND = 0;
+    public static int HIGH_SCORE = 0;
     #endregion
 
     #region Public
@@ -31,6 +43,18 @@ public class Prospector : MonoBehaviour
     public List<CardProspector> discardPile;
 
     public List<CardProspector> drawPile;
+
+    public int chain = 0;
+    public int scoreRun = 0;
+    public int score = 0;
+
+    public Vector3 fsPosMid = new Vector3(.5f, .9f, 0);
+    public Vector3 fsPosRun = new Vector3(.5f, .75f, 0);
+    public Vector3 fsPosMid2 = new Vector3(.5f, .5f, 0);
+    public Vector3 fsPosEnd = new Vector3(1f, .65f, 0);
+    public FloatingScore fsRun;
+
+    public float reloadDelay = 1f;
     #endregion
 
     #region Private
@@ -54,10 +78,32 @@ public class Prospector : MonoBehaviour
                 MoveToDiscard(target);
                 MoveToTarget(Draw());
                 UpdateDrawPile();
+                ScoreManager(ScoreEvent.draw);
                 break;
             case CardState.tableau:
+                bool validMatch = true;
+                if (!cd.FaceUp) validMatch = false;
+                if (!AdjacentRank(cd, target)) validMatch = false;
+                if (!validMatch) return;
+                tableau.Remove(cd);
+                MoveToTarget(cd);
+                SetTableauFaces();
+                ScoreManager(ScoreEvent.mine);
                 break;
         }
+
+        CheckForGameOver();
+    }
+
+    public bool AdjacentRank(CardProspector c0, CardProspector c1)
+    {
+        if (!c0.FaceUp || !c1.FaceUp) return false;
+
+        if (Mathf.Abs(c0.rank - c1.rank) == 1) return true;
+        if (c0.rank == 1 && c1.rank == 13) return true;
+        if (c0.rank == 13 && c1.rank == 1) return true;
+
+        return false;
     }
     #endregion
 
@@ -106,6 +152,15 @@ public class Prospector : MonoBehaviour
             tableau.Add(cp);
         }
 
+        foreach(CardProspector tCP in tableau)
+        {
+            foreach(int hid in tCP.slotDef.hiddenBy)
+            {
+                cp = FindCardByLayoutID(hid);
+                tCP.hiddenBy.Add(cp);
+            }
+        }
+
         MoveToTarget(Draw());
         UpdateDrawPile();
     }
@@ -148,6 +203,122 @@ public class Prospector : MonoBehaviour
             cd.SetSortOrder(-10 * i);
         }
     }
+
+    private CardProspector FindCardByLayoutID(int layoutID)
+    {
+        foreach(CardProspector tCP in tableau)
+        {
+            if (tCP.layoutID == layoutID) return tCP;
+        }
+
+        return null;
+    }
+
+    private void SetTableauFaces()
+    {
+        foreach(CardProspector cd in tableau)
+        {
+            bool fUp = true;
+            foreach(CardProspector cover in cd.hiddenBy)
+            {
+                if (cover.state == CardState.tableau) fUp = false;
+            }
+            cd.FaceUp = fUp;
+        }
+    }
+
+    private void CheckForGameOver()
+    {
+        if(tableau.Count == 0)
+        {
+            GameOver(true);
+            return;
+        }
+        if (drawPile.Count > 0) return;
+        foreach(CardProspector cd in tableau)
+        {
+            if (AdjacentRank(cd, target)) return;
+        }
+
+        GameOver(false);
+    }
+
+    private void GameOver(bool won)
+    {
+        if (won) ScoreManager(ScoreEvent.gameWin);
+        else ScoreManager(ScoreEvent.gameLoss);
+        Invoke("ReloadLevel", reloadDelay);
+    }
+    private void ReloadLevel()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    private void ScoreManager(ScoreEvent sEvt)
+    {
+        List<Vector3> fsPts;
+        switch(sEvt)
+        {
+            case ScoreEvent.draw:
+            case ScoreEvent.gameWin:
+            case ScoreEvent.gameLoss:
+                chain = 0;
+                score += scoreRun;
+                scoreRun = 0;
+                if(fsRun != null)
+                {
+                    fsPts = new List<Vector3>();
+                    fsPts.Add(fsPosRun);
+                    fsPts.Add(fsPosMid2);
+                    fsPts.Add(fsPosEnd);
+                    fsRun.reportFinishTo = Scoreboard.S.gameObject;
+                    fsRun.Init(fsPts, 0, 1);
+                    fsRun.fontSizes = new List<float>(new float[] { 28, 36, 4 });
+                    fsRun = null;
+                }
+                break;
+            case ScoreEvent.mine:
+                chain++;
+                scoreRun += chain;
+                FloatingScore fs;
+                Vector3 p0 = Input.mousePosition;
+                p0.x /= Screen.width;
+                p0.y /= Screen.height;
+                fsPts = new List<Vector3>();
+                fsPts.Add(p0);
+                fsPts.Add(fsPosMid);
+                fsPts.Add(fsPosRun);
+                fs = Scoreboard.S.CreateFloatingScore(chain, fsPts);
+                fs.fontSizes = new List<float>(new float[] { 4, 50, 28 });
+                if (fsRun == null)
+                {
+                    fsRun = fs;
+                    fsRun.reportFinishTo = null;
+                }
+                else fs.reportFinishTo = fsRun.gameObject;
+                break;
+        }
+
+        switch(sEvt)
+        {
+            case ScoreEvent.gameWin:
+                Prospector.SCORE_FROM_PREV_ROUND = score;
+                PrintDebugMsg("You won this round! Round score: " + score);
+                break;
+            case ScoreEvent.gameLoss:
+                if (Prospector.HIGH_SCORE <= score)
+                {
+                    PrintDebugMsg("You got the high score! High score: " + score);
+                    Prospector.HIGH_SCORE = score;
+                    PlayerPrefs.SetInt("ProspectorHighScore", score);
+                }
+                else PrintDebugMsg("Your final score for the game was: " + score);
+                break;
+            default:
+                PrintDebugMsg("Score: " + score + " | Score Run: " + scoreRun + " | Chain: " + chain);
+                break;
+        }
+    }
     #endregion
 
     #region Debug
@@ -181,10 +352,16 @@ public class Prospector : MonoBehaviour
         PrintDebugMsg("Loaded.");
 
         S = this;
+
+        if (PlayerPrefs.HasKey("ProspectorHighScore")) HIGH_SCORE = PlayerPrefs.GetInt("ProspectorHighScore");
+        score += SCORE_FROM_PREV_ROUND;
+        SCORE_FROM_PREV_ROUND = 0;
     }
     // Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
     void Start()
     {
+        Scoreboard.S.Score = score;
+
         deck = GetComponent<Deck>();
         deck.InitDeck(deckXML.text);
         Deck.Shuffle(ref deck.cards);

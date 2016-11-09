@@ -12,7 +12,7 @@ public class SlotDef
     public string layerName = "Default";
     public int layerID = 0;
     public int id;
-    public List<int> hiddemBy = new List<int>();
+    public List<int> hiddenBy = new List<int>();
     public string type = "slot";
     public Vector2 stagger;
 }
@@ -79,7 +79,7 @@ public class Layout : MonoBehaviour
                     if(slotsX[i].HasAtt("hiddenby"))
                     {
                         string[] hiding = slotsX[i].att("hiddenby").Split(',');
-                        foreach (string s in hiding) tSD.hiddemBy.Add(int.Parse(s));
+                        foreach (string s in hiding) tSD.hiddenBy.Add(int.Parse(s));
                     }
                     slotDefs.Add(tSD);
                     break;
