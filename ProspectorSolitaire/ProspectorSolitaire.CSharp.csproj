@@ -73,14 +73,18 @@
     <Compile Include="Assets\__Scripts\Deck.cs" />
     <Compile Include="Assets\__Scripts\FloatingScore.cs" />
     <Compile Include="Assets\__Scripts\Layout.cs" />
-    <Compile Include="Assets\__Scripts\Prospector.cs" />
     <Compile Include="Assets\__Scripts\PT_XMLReader.cs" />
+    <Compile Include="Assets\__Scripts\Prospector.cs" />
     <Compile Include="Assets\__Scripts\Scoreboard.cs" />
+    <Compile Include="Assets\__Scripts\Solitaire\CardSolitaire.cs" />
+    <Compile Include="Assets\__Scripts\Solitaire\LayoutSolitaire.cs" />
+    <Compile Include="Assets\__Scripts\Solitaire\Solitaire.cs" />
     <Compile Include="Assets\__Scripts\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\DeckXML.xml" />
     <None Include="Assets\Resources\LayoutXML.xml" />
+    <None Include="Assets\Resources\LayoutXMLSolitaire.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

@@ -1,0 +1,63 @@
+<xml>
+	<!-- This file holds info for laying out the Prospector card game. -->
+	
+	<!-- The multiplier is multiplied by the x and y attributes below. -->
+	<!-- This determines how loose or tight the layout is. --> 
+	<multiplier x="1.25" y="1.5" />
+	
+	<!-- In the XML below, id is the number of the card -->
+	<!-- x and y set position -->
+	<!-- faceup is 1 if the card is face-up -->
+	<!-- layer sets the depth layer so cards overlap properly -->
+	<!-- hiddenby is the ids of cards that keep a card face-down -->
+	
+	<!-- Column1 -->
+	<slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+
+  <!-- Column2 -->
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+
+  <!-- Column3 -->
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+
+  <!-- Column4 -->
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+
+  <!-- Column5 -->
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+
+  <!-- Column6 -->
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+
+  <!-- Column7 -->
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+  <slot id="0" x="-6" y="-5" faceup="0" layer="0" hiddenby="3,4" />
+
+  <!-- This positions the deck pile and staggers it -->
+	<slot type="drawpile" x="6" y="4" xstagger="0.15" layer="4"/>
+	
+	<!-- This positions the discard pile and target card -->
+	<slot type="discardpile" x="0" y="1" layer="5"/>
+	
+</xml>
+	
