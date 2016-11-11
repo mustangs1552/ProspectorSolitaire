@@ -55,6 +55,9 @@ public class Prospector : MonoBehaviour
     public FloatingScore fsRun;
 
     public float reloadDelay = 1f;
+
+    public GUIText gtGameOver = null;
+    public GUIText gtRoundResult = null;
     #endregion
 
     #region Private
@@ -302,22 +305,39 @@ public class Prospector : MonoBehaviour
         switch(sEvt)
         {
             case ScoreEvent.gameWin:
+                gtGameOver.text = "Round Over";
                 Prospector.SCORE_FROM_PREV_ROUND = score;
                 PrintDebugMsg("You won this round! Round score: " + score);
+                gtRoundResult.text = "You won this round!\nRound score: " + score;
+                ShowResultGTs(true);
                 break;
             case ScoreEvent.gameLoss:
+                gtGameOver.text = "Game Over";
                 if (Prospector.HIGH_SCORE <= score)
                 {
                     PrintDebugMsg("You got the high score! High score: " + score);
+                    string sRR = "You got the high score!\nHigh score: " + score;
+                    gtRoundResult.text = sRR;
                     Prospector.HIGH_SCORE = score;
                     PlayerPrefs.SetInt("ProspectorHighScore", score);
                 }
-                else PrintDebugMsg("Your final score for the game was: " + score);
+                else
+                {
+                    PrintDebugMsg("Your final score for the game was: " + score);
+                    gtRoundResult.text = "Your final score was: " + score;
+                }
+                ShowResultGTs(true);
                 break;
             default:
                 PrintDebugMsg("Score: " + score + " | Score Run: " + scoreRun + " | Chain: " + chain);
                 break;
         }
+    }
+
+    private void ShowResultGTs(bool show)
+    {
+        gtGameOver.gameObject.SetActive(show);
+        gtRoundResult.gameObject.SetActive(show);
     }
     #endregion
 
@@ -356,6 +376,16 @@ public class Prospector : MonoBehaviour
         if (PlayerPrefs.HasKey("ProspectorHighScore")) HIGH_SCORE = PlayerPrefs.GetInt("ProspectorHighScore");
         score += SCORE_FROM_PREV_ROUND;
         SCORE_FROM_PREV_ROUND = 0;
+
+        GameObject go = GameObject.Find("GameOver");
+        if (go != null) gtGameOver = go.GetComponent<GUIText>();
+        go = GameObject.Find("RoundResult");
+        if (go != null) gtRoundResult = go.GetComponent<GUIText>();
+        ShowResultGTs(false);
+
+        go = GameObject.Find("HighScore");
+        string hScore = "High score: " + Utils.AddCommasToNumber(HIGH_SCORE);
+        go.GetComponent<GUIText>().text = hScore;
     }
     // Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
     void Start()

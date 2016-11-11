@@ -36,7 +36,7 @@ public class Scoreboard : MonoBehaviour
     #region Public
     public void FSCallback(FloatingScore fs)
     {
-        score += fs.Score;
+        Score += fs.Score;
     }
 
     public FloatingScore CreateFloatingScore(int amt, List<Vector3> pts)
@@ -80,6 +80,7 @@ public class Scoreboard : MonoBehaviour
         {
             score = value;
             scoreString = Utils.AddCommasToNumber(score);
+            GetComponent<GUIText>().text = scoreString;
         }
     }
 
@@ -92,7 +93,7 @@ public class Scoreboard : MonoBehaviour
         set
         {
             scoreString = value;
-            GetComponent<TextMesh>().text = scoreString;
+            GetComponent<GUIText>().text = scoreString;
         }
     }
     #endregion
@@ -123,7 +124,7 @@ public class Scoreboard : MonoBehaviour
     // Update is called every frame, if the MonoBehaviour is enabled.
     void Update()
     {
-
+        
     }
     // LateUpdate is called every frame after all other update functions, if the Behaviour is enabled.
     void LateUpdate()

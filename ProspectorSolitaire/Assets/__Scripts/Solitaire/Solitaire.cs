@@ -20,10 +20,13 @@ public class Solitaire : MonoBehaviour
     public TextAsset layoutXML = null;
     public Vector3 layoutCenter = Vector3.zero;
 
+    public LayoutSolitaire layout = null;
+    public Transform layoutAnchor = null;
+
     [Header("For debug view only!")]
     public Deck deck = null;
-    public List<Card> drawPile = new List<Card>();
-    public List<Card> discardPile = new List<Card>();
+    public List<CardSolitaire> drawPile = new List<CardSolitaire>();
+    public List<CardSolitaire> discardPile = new List<CardSolitaire>();
     #endregion
 
     #region Private
@@ -41,7 +44,30 @@ public class Solitaire : MonoBehaviour
     #endregion
 
     #region Private
+    private List<CardSolitaire> UpgradeCardsList(List<Card> lCD)
+    {
+        List<CardSolitaire> lCS = new List<CardSolitaire>();
+        foreach (Card tCD in lCD) lCS.Add(tCD as CardSolitaire);
+        return lCS;
+    }
 
+    private void LayoutGame()
+    {
+        if (layoutAnchor == null)
+        {
+            GameObject tGO = new GameObject("LayoutAnchor");
+            layoutAnchor = tGO.transform;
+            layoutAnchor.transform.position = layoutCenter;
+        }
+
+        for (int i = 0; i < layout.slotDefs.Count; i++)
+        {
+            SolSlotDef currSlot = layout.slotDefs[i];
+            GameObject currCard = deck.cards[i].gameObject;
+
+            currCard.gameObject.transform.position = new Vector3(currSlot.x, currSlot.y, 0);
+        }
+    }
     #endregion
 
     #region Debug
@@ -83,6 +109,13 @@ public class Solitaire : MonoBehaviour
         deck = GetComponent<Deck>();
         deck.InitDeck(deckXML.text);
         Deck.Shuffle(ref deck.cards);
+
+        layout = GetComponent<LayoutSolitaire>();
+        layout.ReadLayout(layoutXML.text);
+
+        drawPile = UpgradeCardsList(deck.cards);
+
+        LayoutGame();
     }
     // This function is called every fixed framerate frame, if the MonoBehaviour is enabled.
     void FixedUpdate()

@@ -38,7 +38,7 @@ public class LayoutSolitaire : MonoBehaviour
     public List<SolSlotDef> slotDefs = new List<SolSlotDef>();
     public SolSlotDef drawPile = null;
     public SolSlotDef discardPile = null;
-    public SolSlotDef target = null;
+    public List<SolSlotDef> aces = new List<SolSlotDef>();
     #endregion
 
     #region Private
@@ -52,7 +52,52 @@ public class LayoutSolitaire : MonoBehaviour
     #endregion
 
     #region Public
+    public void ReadLayout(string xmlText)
+    {
+        xmlr = new PT_XMLReader();
+        xmlr.Parse(xmlText);
+        xml = xmlr.xml["xml"][0];
 
+        multiplier.x = float.Parse(xml["multiplier"][0].att("x"));
+        multiplier.y = float.Parse(xml["multiplier"][0].att("y"));
+
+        SolSlotDef tSD;
+        PT_XMLHashList slotsX = xml["slot"];
+
+        for(int i = 0; i < slotsX.Count; i++)
+        {
+            tSD = new SolSlotDef();
+            if (slotsX[i].HasAtt("type")) tSD.type = slotsX[i].att("type");
+            else tSD.type = "slot";
+
+            tSD.x = float.Parse(slotsX[i].att("x"));
+            tSD.y = float.Parse(slotsX[i].att("y"));
+            tSD.pos = new Vector3(tSD.x * multiplier.x, tSD.y * multiplier.y, 0);
+
+            tSD.layerID = int.Parse(slotsX[i].att("layer"));
+            tSD.layerName = tSD.layerID.ToString();
+
+            switch(tSD.type)
+            {
+                case "slot":
+                    tSD.faceUp = slotsX[i].att("faceup") == "1";
+                    tSD.id = int.Parse(slotsX[i].att("id"));
+                    if (slotsX[i].HasAtt("hiddenby")) tSD.hiddenBy = int.Parse(slotsX[i].att("hiddenby"));
+                    slotDefs.Add(tSD);
+                    break;
+                case "drawpile":
+                    tSD.stagger.x = float.Parse(slotsX[i].att("xstagger"));
+                    drawPile = tSD;
+                    break;
+                case "discardpile":
+                    discardPile = tSD;
+                    break;
+                case "aces":
+                    aces.Add(tSD);
+                    break;
+            }
+        }
+    }
     #endregion
 
     #region Private

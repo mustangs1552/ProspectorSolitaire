@@ -66,7 +66,7 @@ public class FloatingScore : MonoBehaviour
 
     public void FSCallback(FloatingScore fs)
     {
-        score += fs.score;
+        Score += fs.score;
     }
     #endregion
 
@@ -100,7 +100,7 @@ public class FloatingScore : MonoBehaviour
         {
             score = value;
             scoreString = Utils.AddCommasToNumber(score);
-            GetComponent<TextMesh>().text = scoreString;
+            GetComponent<GUIText>().text = scoreString;
         }
     }
     #endregion
@@ -158,7 +158,7 @@ public class FloatingScore : MonoBehaviour
             if (fontSizes != null && fontSizes.Count > 0)
             {
                 int size = Mathf.RoundToInt(Utils.Bezier(uC, fontSizes));
-                GetComponent<TextMesh>().fontSize = size;
+                GetComponent<GUIText>().fontSize = size;
             }
         }
     }
