@@ -60,12 +60,33 @@ public class Solitaire : MonoBehaviour
             layoutAnchor.transform.position = layoutCenter;
         }
 
+        SolSlotDef currSlot = null;
+        GameObject currCard = null;
+        //int[] topCard = { 0, 2, 5, 9, 14, 20, 27 };
+        int topCard = 0;
+        int currColumnAdd = 2;
         for (int i = 0; i < layout.slotDefs.Count; i++)
         {
-            SolSlotDef currSlot = layout.slotDefs[i];
-            GameObject currCard = deck.cards[i].gameObject;
+            currSlot = layout.slotDefs[i];
+            currCard = deck.cards[i].gameObject;
 
             currCard.gameObject.transform.position = new Vector3(currSlot.x, currSlot.y, 0);
+
+            if (topCard == i)
+            {
+                topCard += currColumnAdd;
+                currColumnAdd += 1;
+            }
+            else currCard.GetComponent<CardSolitaire>().FaceUp = false;
+        }
+
+        for(int i = layout.slotDefs.Count; i < deck.cards.Count; i++)
+        {
+            currSlot = layout.drawPile;
+            currCard = deck.cards[i].gameObject;
+
+            currCard.gameObject.transform.position = new Vector3(currSlot.x, currSlot.y, 0);
+            currCard.GetComponent<CardSolitaire>().FaceUp = false;
         }
     }
     #endregion
