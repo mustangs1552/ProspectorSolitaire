@@ -68,6 +68,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\__Scripts\Bartok\Bartok.cs" />
+    <Compile Include="Assets\__Scripts\Bartok\BartokLayout.cs" />
     <Compile Include="Assets\__Scripts\Bartok\CardBartok.cs" />
     <Compile Include="Assets\__Scripts\Card.cs" />
     <Compile Include="Assets\__Scripts\CardProspector.cs" />
@@ -86,6 +88,9 @@
     <None Include="Assets\Resources\DeckXML.xml" />
     <None Include="Assets\Resources\LayoutXML.xml" />
     <None Include="Assets\Resources\LayoutXMLSolitaire.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Resources\LayoutXMLBartok.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

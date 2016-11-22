@@ -64,7 +64,7 @@ public class Solitaire : MonoBehaviour
         GameObject currCard = null;
         int topCard = 0;
         int currColumnAdd = 2;
-        int currSortOrder = 0;
+        //int currSortOrder = 0;
         for (int i = 0; i < layout.slotDefs.Count; i++)
         {
             currSlot = layout.slotDefs[i];
