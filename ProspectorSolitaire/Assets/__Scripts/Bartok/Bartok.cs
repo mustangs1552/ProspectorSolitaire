@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public enum TurnPhase
 {
@@ -22,6 +23,7 @@ public class Bartok : MonoBehaviour
 
     #region Static
     public static Bartok S;
+    public static Player CURRENT_PLAYER;
     #endregion
 
     #region Public
@@ -31,6 +33,8 @@ public class Bartok : MonoBehaviour
     public float handFanDegrees = 10f;
     public int numStartingCards = 7;
     public float drawTimeStagger = .1f;
+    public GameObject gtGameOver;
+    public GameObject gtRoundResult;
 
     [Header("For debug use only")]
     public Deck deck;
@@ -42,6 +46,9 @@ public class Bartok : MonoBehaviour
 
     public List<Player> players;
     public CardBartok targetCard;
+
+    public TurnPhase phase = TurnPhase.idle;
+    public GameObject turnLight;
     #endregion
 
     #region Private
@@ -81,6 +88,7 @@ public class Bartok : MonoBehaviour
     public void DrawFirstTarget()
     {
         CardBartok tCB = MoveToTarget(Draw());
+        tCB.reportToFinish = this.gameObject;
     }
 
     public CardBartok MoveToTarget(CardBartok tCB)
@@ -106,6 +114,117 @@ public class Bartok : MonoBehaviour
         tCB.transform.localPosition = layout.discardPile.pos + Vector3.back / 2;
 
         return tCB;
+    }
+
+    public void CBCallback(CardBartok cb)
+    {
+        Utils.tr(Utils.RoundToPlaces(Time.time), "Bartok.CBCallback()", cb.name);
+        StartGame();
+    }
+
+    public void StartGame()
+    {
+        PassTurn(1);
+    }
+
+    public void PassTurn(int num = -1)
+    {
+        if(num == -1)
+        {
+            int ndx = players.IndexOf(CURRENT_PLAYER);
+            num = (ndx + 1) % 4;
+        }
+        int lastPlayerNum = -1;
+        if (CURRENT_PLAYER != null)
+        {
+            lastPlayerNum = CURRENT_PLAYER.playerNum;
+            if (CheckGameOver()) return;
+        }
+        CURRENT_PLAYER = players[num];
+        phase = TurnPhase.pre;
+
+        CURRENT_PLAYER.TakeTurn();
+
+        Vector3 lPos = CURRENT_PLAYER.handSLotDef.pos + Vector3.back * 5;
+        turnLight.transform.position = lPos;
+
+        Utils.tr(Utils.RoundToPlaces(Time.time), "Bartok.PassTurn()", "Old: " + lastPlayerNum, "New: " + CURRENT_PLAYER.playerNum);
+    }
+
+    public bool ValidPlay(CardBartok cb)
+    {
+        if (cb.rank == targetCard.rank) return true;
+
+        if (cb.suit == targetCard.suit) return true;
+
+        return false;
+    }
+
+    public void CardClicked(CardBartok tCB)
+    {
+        if (CURRENT_PLAYER.type != PlayerType.human) return;
+        if (phase == TurnPhase.waiting) return;
+
+        switch(tCB.state)
+        {
+            case CBState.drawpile:
+                CardBartok cb = CURRENT_PLAYER.AddCard(Draw());
+                cb.callbackPlayer = CURRENT_PLAYER;
+                Utils.tr(Utils.RoundToPlaces(Time.time), "Bartok.CardClicked()", "Draw", cb.name);
+                phase = TurnPhase.waiting;
+                break;
+            case CBState.hand:
+                if (ValidPlay(tCB))
+                {
+                    CURRENT_PLAYER.RemoveCard(tCB);
+                    MoveToTarget(tCB);
+                    tCB.callbackPlayer = CURRENT_PLAYER;
+                    Utils.tr(Utils.RoundToPlaces(Time.time), "Bartok.CardClicked()", "Play", tCB.name, targetCard.name + " is target");
+                    phase = TurnPhase.waiting;
+                }
+                else Utils.tr(Utils.RoundToPlaces(Time.time), "Bartok.CardClicked()", "Attempted to Play", tCB.name, targetCard.name + " is target");
+                break;
+        }
+    }
+
+    public bool CheckGameOver()
+    {
+        if(drawPile.Count == 0)
+        {
+            List<Card> cards = new List<Card>();
+            foreach (CardBartok cb in discardPile) cards.Add(cb);
+            discardPile.Clear();
+            Deck.Shuffle(ref cards);
+            drawPile = UpgradeCardsList(cards);
+            ArrangeDrawPile();
+        }
+
+        if(CURRENT_PLAYER.hand.Count == 0)
+        {
+            if(CURRENT_PLAYER.type == PlayerType.human)
+            {
+                gtGameOver.GetComponent<GUIText>().text = "You Won!";
+                gtRoundResult.GetComponent<GUIText>().text = "";
+            }
+            else
+            {
+                gtGameOver.GetComponent<GUIText>().text = "Game Over";
+                gtRoundResult.GetComponent<GUIText>().text = "Player " + CURRENT_PLAYER.playerNum + " won";
+            }
+            gtGameOver.SetActive(true);
+            gtRoundResult.SetActive(true);
+            phase = TurnPhase.gameover;
+            Invoke("RestartGame", 1);
+            return true;
+        }
+
+        return false;
+    }
+
+    public void RestartGame()
+    {
+        CURRENT_PLAYER = null;
+        SceneManager.LoadScene("bartok");
     }
     #endregion
 
@@ -185,6 +304,12 @@ public class Bartok : MonoBehaviour
         PrintDebugMsg("Loaded.");
 
         S = this;
+
+        turnLight = GameObject.Find("TurnLight");
+        gtGameOver = GameObject.Find("GTGameOver");
+        gtRoundResult = GameObject.Find("GTRoundResult");
+        gtGameOver.SetActive(false);
+        gtRoundResult.SetActive(false);
     }
     // Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
     void Start()
@@ -206,11 +331,11 @@ public class Bartok : MonoBehaviour
     }
     // Update is called every frame, if the MonoBehaviour is enabled.
     void Update()
-    {
+    {/*
         if (Input.GetKeyDown(KeyCode.Alpha1)) players[0].AddCard(Draw());
         if (Input.GetKeyDown(KeyCode.Alpha2)) players[1].AddCard(Draw());
         if (Input.GetKeyDown(KeyCode.Alpha3)) players[2].AddCard(Draw());
-        if (Input.GetKeyDown(KeyCode.Alpha4)) players[3].AddCard(Draw());
+        if (Input.GetKeyDown(KeyCode.Alpha4)) players[3].AddCard(Draw());*/
     }
     // LateUpdate is called every frame after all other update functions, if the Behaviour is enabled.
     void LateUpdate()

@@ -33,6 +33,7 @@ public class CardBartok : Card
     public GameObject reportToFinish = null;
     public int eventualSortOrder;
     public string eventualSortLayer;
+    public Player callbackPlayer = null;
     #endregion
 
     #region Private
@@ -65,6 +66,12 @@ public class CardBartok : Card
     {
         MoveTo(ePos, Quaternion.identity);
     }
+
+    public override void OnMouseUpAsButton()
+    {
+        Bartok.S.CardClicked(this);
+        base.OnMouseUpAsButton();
+    }
     #endregion
 
     #region Private
@@ -84,7 +91,7 @@ public class CardBartok : Card
     // Awake is called when the script instance is being loaded.
     void Awake()
     {
-        
+        callbackPlayer = null;
     }
     // Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
     void Start()
@@ -127,6 +134,11 @@ public class CardBartok : Card
                     {
                         reportToFinish.SendMessage("CBCallback", this);
                         reportToFinish = null;
+                    }
+                    else if(callbackPlayer != null)
+                    {
+                        callbackPlayer.CBCallback(this);
+                        callbackPlayer = null;
                     }
                 }
                 else
