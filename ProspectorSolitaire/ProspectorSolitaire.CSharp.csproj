@@ -71,6 +71,7 @@
     <Compile Include="Assets\__Scripts\Bartok\Bartok.cs" />
     <Compile Include="Assets\__Scripts\Bartok\BartokLayout.cs" />
     <Compile Include="Assets\__Scripts\Bartok\CardBartok.cs" />
+    <Compile Include="Assets\__Scripts\Bartok\Player.cs" />
     <Compile Include="Assets\__Scripts\Card.cs" />
     <Compile Include="Assets\__Scripts\CardProspector.cs" />
     <Compile Include="Assets\__Scripts\Deck.cs" />

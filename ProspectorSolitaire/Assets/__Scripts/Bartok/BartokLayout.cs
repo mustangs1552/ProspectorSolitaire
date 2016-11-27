@@ -33,7 +33,13 @@ public class BartokLayout : MonoBehaviour
     #endregion
 
     #region Public
-
+    public PT_XMLReader xmlr;
+    public PT_XMLHashtable xml;
+    public Vector2 multiplier;
+    public List<SlotDefBartok> slotDefs;
+    public SlotDefBartok drawPile;
+    public SlotDefBartok discardPile;
+    public SlotDefBartok target;
     #endregion
 
     #region Private
@@ -47,7 +53,53 @@ public class BartokLayout : MonoBehaviour
     #endregion
 
     #region Public
+    public void ReadLayout(string xmlText)
+    {
+        xmlr = new PT_XMLReader();
+        xmlr.Parse(xmlText);
+        xml = xmlr.xml["xml"][0];
 
+        multiplier.x = float.Parse(xml["multiplier"][0].att("x"));
+        multiplier.y = float.Parse(xml["multiplier"][0].att("y"));
+
+        SlotDefBartok tSD;
+        PT_XMLHashList slotsX = xml["slot"];
+
+        for(int i = 0; i < slotsX.Count; i++)
+        {
+            tSD = new SlotDefBartok();
+            if (slotsX[i].HasAtt("type")) tSD.type = slotsX[i].att("type");
+            else tSD.type = "slot";
+
+            tSD.x = float.Parse(slotsX[i].att("x"));
+            tSD.y = float.Parse(slotsX[i].att("y"));
+            tSD.pos = new Vector3(tSD.x * multiplier.x, tSD.y * multiplier.y, 0);
+
+            tSD.layerID = int.Parse(slotsX[i].att("layer"));
+            tSD.layerName = tSD.layerID.ToString();
+
+            switch(tSD.type)
+            {
+                case "slot":
+                    break;
+                case "drawpile":
+                    tSD.stagger.x = float.Parse(slotsX[i].att("xstagger"));
+                    drawPile = tSD;
+                    break;
+                case "discardpile":
+                    discardPile = tSD;
+                    break;
+                case "target":
+                    target = tSD;
+                    break;
+                case "hand":
+                    tSD.player = int.Parse(slotsX[i].att("player"));
+                    tSD.rot = float.Parse(slotsX[i].att("rot"));
+                    slotDefs.Add(tSD);
+                    break;
+            }
+        }
+    }
     #endregion
 
     #region Private

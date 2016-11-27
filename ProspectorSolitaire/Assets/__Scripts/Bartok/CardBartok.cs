@@ -31,6 +31,8 @@ public class CardBartok : Card
     public List<Quaternion> bezierRots;
     public float timeStart, timeDuration;
     public GameObject reportToFinish = null;
+    public int eventualSortOrder;
+    public string eventualSortLayer;
     #endregion
 
     #region Private
@@ -133,6 +135,9 @@ public class CardBartok : Card
                     transform.localPosition = pos;
                     Quaternion rotQ = Utils.Bezier(uC, bezierRots);
                     transform.rotation = rotQ;
+
+                    if (u > .5f && spriteRenderers[0].sortingOrder != eventualSortOrder) SetSortOrder(eventualSortOrder);
+                    if (u > .75f && spriteRenderers[0].sortingLayerName != eventualSortLayer) SetSortingLayerName(eventualSortLayer);
                 }
                 break;
         }
