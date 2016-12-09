@@ -4,13 +4,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
+public enum GameState
+{
+    GroupOne,
+    GroupTwo
+}
+
 public enum TurnPhaseMatching
 {
-    draw,
-    mine,
-    mineGold,
-    gameWin,
-    gameLoss
+    PlayerOne,
+    PlayerTwo
 }
 
 public class Matching : MonoBehaviour
@@ -23,8 +26,6 @@ public class Matching : MonoBehaviour
 
     #region Static
     public static Matching S;
-    public static int SCORE_FROM_PREV_ROUND = 0;
-    public static int HIGH_SCORE = 0;
     #endregion
 
     #region Public
@@ -38,26 +39,14 @@ public class Matching : MonoBehaviour
     public float yOffset = -2.5f;
     public Transform layoutAnchor;
 
-    public CardProspector target;
-    public List<CardProspector> tableau;
-    public List<CardProspector> discardPile;
+    public List<CardMatching> cmDeck;
+    public List<CardMatching> cardGroupOne;
+    public List<CardMatching> cardGroupTwo;
+    public List<CardMatching> playerOneMatches;
+    public List<CardMatching> playerTwoMatches;
 
-    public List<CardProspector> drawPile;
-
-    public int chain = 0;
-    public int scoreRun = 0;
-    public int score = 0;
-
-    public Vector3 fsPosMid = new Vector3(.5f, .9f, 0);
-    public Vector3 fsPosRun = new Vector3(.5f, .75f, 0);
-    public Vector3 fsPosMid2 = new Vector3(.5f, .5f, 0);
-    public Vector3 fsPosEnd = new Vector3(1f, .65f, 0);
-    public FloatingScore fsRun;
-
-    public float reloadDelay = 1f;
-
-    public GUIText gtGameOver = null;
-    public GUIText gtRoundResult = null;
+    public GameState state = GameState.GroupOne;
+    public TurnPhaseMatching turnState = TurnPhaseMatching.PlayerTwo;
     #endregion
 
     #region Private
@@ -71,67 +60,45 @@ public class Matching : MonoBehaviour
     #endregion
 
     #region Public
-    public void CardClicked(CardProspector cd)
+    public void CardClicked(CardMatching cd)
     {
         switch(cd.state)
         {
-            case CardState.target:
+            case CardStateMatching.GroupOne:
                 break;
-            case CardState.drawpile:
-                MoveToDiscard(target);
-                MoveToTarget(Draw());
-                UpdateDrawPile();
-                ScoreManager(TurnPhaseMatching.draw);
+            case CardStateMatching.GroupTwo:
                 break;
-            case CardState.tableau:
-                bool validMatch = true;
-                if (!cd.FaceUp) validMatch = false;
-                if (!AdjacentRank(cd, target)) validMatch = false;
-                if (!validMatch) return;
-                tableau.Remove(cd);
-                MoveToTarget(cd);
-                SetTableauFaces();
-                ScoreManager(TurnPhaseMatching.mine);
+            case CardStateMatching.Matched:
                 break;
         }
-
-        CheckForGameOver();
     }
 
-    public bool AdjacentRank(CardProspector c0, CardProspector c1)
+    public bool CardMatch(CardMatching c0, CardMatching c1)
     {
         if (!c0.FaceUp || !c1.FaceUp) return false;
-
-        if (Mathf.Abs(c0.rank - c1.rank) == 1) return true;
-        if (c0.rank == 1 && c1.rank == 13) return true;
-        if (c0.rank == 13 && c1.rank == 1) return true;
+        
+        if (c0.rank == c1.rank) return true;
+        if (c0.suit == c1.suit) return true;
 
         return false;
     }
     #endregion
 
     #region Private
-    private List<CardProspector> ConvertListCardsToListCardProspector(List<Card> lCD)
+    private List<CardMatching> ConvertListCardsToListCardMatching(List<Card> lCD)
     {
-        List<CardProspector> lCP = new List<CardProspector>();
-        CardProspector tCP;
+        List<CardMatching> lCP = new List<CardMatching>();
+        CardMatching tCP;
         foreach(Card tCD in lCD)
         {
-            tCP = tCD as CardProspector;
+            tCP = tCD as CardMatching;
             lCP.Add(tCP);
         }
         return lCP;
     }
 
-    private CardProspector Draw()
-    {
-        CardProspector cd = drawPile[0];
-        drawPile.RemoveAt(0);
-        return cd;
-    }
-
     private void LayoutGame()
-    {/*
+    {
         if(layoutAnchor == null)
         {
             GameObject tGO = new GameObject("layoutAnchor");
@@ -139,7 +106,8 @@ public class Matching : MonoBehaviour
             layoutAnchor.transform.position = layoutCenter;
         }
 
-        CardProspector cp;
+        CardMatching cm;
+        /*
         foreach(SlotDef tSD in layout.slotDefs)
         {
             cp = Draw();
@@ -155,189 +123,77 @@ public class Matching : MonoBehaviour
             tableau.Add(cp);
         }
 
-        foreach(CardProspector tCP in tableau)
+        foreach(CardMatching tCP in tableau)
         {
             foreach(int hid in tCP.slotDef.hiddenBy)
             {
                 cp = FindCardByLayoutID(hid);
                 tCP.hiddenBy.Add(cp);
             }
-        }
-
-        MoveToTarget(Draw());
-        UpdateDrawPile();*/
-    }
-
-    private void MoveToDiscard(CardProspector cd)
-    {/*
-        cd.state = CardState.discard;
-        discardPile.Add(cd);
-        cd.transform.parent = layoutAnchor;
-        cd.transform.localPosition = new Vector3(layout.multiplier.x * layout.discardPile.x, layout.multiplier.y * layout.discardPile.y, -layout.discardPile.layerID + .5f);
-        cd.FaceUp = true;
-        cd.SetSortingLayerName(layout.discardPile.layerName);
-        cd.SetSortOrder(-100 + discardPile.Count);*/
-    }
-
-    private void MoveToTarget(CardProspector cd)
-    {/*
-        if (target != null) MoveToDiscard(target);
-        target = cd;
-        cd.state = CardState.target;
-        cd.transform.parent = layoutAnchor;
-        cd.transform.localPosition = new Vector3(layout.multiplier.x * layout.discardPile.x, layout.multiplier.y * layout.discardPile.y, -layout.discardPile.layerID);
-        cd.FaceUp = true;
-        cd.SetSortingLayerName(layout.discardPile.layerName);
-        cd.SetSortOrder(0);*/
-    }
-
-    private void UpdateDrawPile()
-    {/*
-        CardProspector cd;
-        for(int i = 0; i < drawPile.Count; i++)
-        {
-            cd = drawPile[i];
-            cd.transform.parent = layoutAnchor;
-            Vector2 dpStagger = layout.drawPile.stagger;
-            cd.transform.localPosition = new Vector3(layout.multiplier.x * (layout.drawPile.x + i * dpStagger.x), layout.multiplier.y * (layout.drawPile.y + i * dpStagger.y), -layout.drawPile.layerID + .1f * i);
-            cd.FaceUp = false;
-            cd.state = CardState.drawpile;
-            cd.SetSortingLayerName(layout.drawPile.layerName);
-            cd.SetSortOrder(-10 * i);
         }*/
-    }
 
-    private CardProspector FindCardByLayoutID(int layoutID)
-    {
-        foreach(CardProspector tCP in tableau)
+        int i = 0;
+        for(i = 0; i < layout.cardGroupOne.Count; i++)
         {
-            if (tCP.layoutID == layoutID) return tCP;
-        }
-
-        return null;
-    }
-
-    private void SetTableauFaces()
-    {
-        foreach(CardProspector cd in tableau)
-        {
-            bool fUp = true;
-            foreach(CardProspector cover in cd.hiddenBy)
+            cardGroupOne.Add(cmDeck[i]);
+            cmDeck.Remove(cmDeck[i]);
+            foreach(CardMatching tCM in cmDeck)
             {
-                if (cover.state == CardState.tableau) fUp = false;
+                if(CardMatch(tCM, cardGroupOne[cardGroupOne.Count - 1]))
+                {
+                    cardGroupOne.Add(tCM);
+                    cmDeck.Remove(tCM);
+                    break;
+                }
             }
-            cd.FaceUp = fUp;
         }
-    }
-
-    private void CheckForGameOver()
-    {
-        if(tableau.Count == 0)
+        for (int ii = i; ii < layout.cardGroupTwo.Count; ii++)
         {
-            GameOver(true);
-            return;
+            cardGroupTwo.Add(cmDeck[ii]);
+            cmDeck.Remove(cmDeck[ii]);
+            foreach (CardMatching tCM in cmDeck)
+            {
+                if (CardMatch(tCM, cardGroupTwo[cardGroupTwo.Count - 1]))
+                {
+                    cardGroupTwo.Add(tCM);
+                    cmDeck.Remove(tCM);
+                    break;
+                }
+            }
         }
-        if (drawPile.Count > 0) return;
-        foreach(CardProspector cd in tableau)
-        {
-            if (AdjacentRank(cd, target)) return;
-        }
-
-        GameOver(false);
     }
 
-    private void GameOver(bool won)
+    private void MoveToMatches(CardMatching cd)
     {
-        if (won) ScoreManager(TurnPhaseMatching.gameWin);
-        else ScoreManager(TurnPhaseMatching.gameLoss);
-        Invoke("ReloadLevel", reloadDelay);
+        cd.transform.parent = layoutAnchor;
+
+        if (cd.state != CardStateMatching.Matched)
+        {
+            if (turnState == TurnPhaseMatching.PlayerOne)
+            {
+                playerOneMatches.Add(cd);
+                cd.transform.localPosition = new Vector3(layout.playerOneMatches.x, layout.playerOneMatches.y, -layout.playerOneMatches.layerID + .5f);
+                cd.SetSortingLayerName(layout.playerOneMatches.layerName);
+                cd.SetSortOrder(-100 + playerOneMatches.Count);
+            }
+            else
+            {
+                playerTwoMatches.Add(cd);
+                cd.transform.localPosition = new Vector3(layout.playerTwoMatches.x, layout.playerTwoMatches.y, -layout.playerTwoMatches.layerID + .5f);
+                cd.SetSortingLayerName(layout.playerTwoMatches.layerName);
+                cd.SetSortOrder(-100 + playerTwoMatches.Count);
+            }
+
+            if (cd.state == CardStateMatching.GroupOne) cardGroupOne.Remove(cd);
+            else cardGroupTwo.Remove(cd);
+
+            cd.state = CardStateMatching.Matched;
+        }
     }
+
     private void ReloadLevel()
     {
         SceneManager.LoadScene(0);
-    }
-
-    private void ScoreManager(TurnPhaseMatching sEvt)
-    {
-        List<Vector3> fsPts;
-        switch(sEvt)
-        {
-            case TurnPhaseMatching.draw:
-            case TurnPhaseMatching.gameWin:
-            case TurnPhaseMatching.gameLoss:
-                chain = 0;
-                score += scoreRun;
-                scoreRun = 0;
-                if(fsRun != null)
-                {
-                    fsPts = new List<Vector3>();
-                    fsPts.Add(fsPosRun);
-                    fsPts.Add(fsPosMid2);
-                    fsPts.Add(fsPosEnd);
-                    fsRun.reportFinishTo = Scoreboard.S.gameObject;
-                    fsRun.Init(fsPts, 0, 1);
-                    fsRun.fontSizes = new List<float>(new float[] { 28, 36, 4 });
-                    fsRun = null;
-                }
-                break;
-            case TurnPhaseMatching.mine:
-                chain++;
-                scoreRun += chain;
-                FloatingScore fs;
-                Vector3 p0 = Input.mousePosition;
-                p0.x /= Screen.width;
-                p0.y /= Screen.height;
-                fsPts = new List<Vector3>();
-                fsPts.Add(p0);
-                fsPts.Add(fsPosMid);
-                fsPts.Add(fsPosRun);
-                fs = Scoreboard.S.CreateFloatingScore(chain, fsPts);
-                fs.fontSizes = new List<float>(new float[] { 4, 50, 28 });
-                if (fsRun == null)
-                {
-                    fsRun = fs;
-                    fsRun.reportFinishTo = null;
-                }
-                else fs.reportFinishTo = fsRun.gameObject;
-                break;
-        }
-
-        switch(sEvt)
-        {
-            case TurnPhaseMatching.gameWin:
-                gtGameOver.text = "Round Over";
-                Matching.SCORE_FROM_PREV_ROUND = score;
-                PrintDebugMsg("You won this round! Round score: " + score);
-                gtRoundResult.text = "You won this round!\nRound score: " + score;
-                ShowResultGTs(true);
-                break;
-            case TurnPhaseMatching.gameLoss:
-                gtGameOver.text = "Game Over";
-                if (Matching.HIGH_SCORE <= score)
-                {
-                    PrintDebugMsg("You got the high score! High score: " + score);
-                    string sRR = "You got the high score!\nHigh score: " + score;
-                    gtRoundResult.text = sRR;
-                    Matching.HIGH_SCORE = score;
-                    PlayerPrefs.SetInt("ProspectorHighScore", score);
-                }
-                else
-                {
-                    PrintDebugMsg("Your final score for the game was: " + score);
-                    gtRoundResult.text = "Your final score was: " + score;
-                }
-                ShowResultGTs(true);
-                break;
-            default:
-                PrintDebugMsg("Score: " + score + " | Score Run: " + scoreRun + " | Chain: " + chain);
-                break;
-        }
-    }
-
-    private void ShowResultGTs(bool show)
-    {
-        gtGameOver.gameObject.SetActive(show);
-        gtRoundResult.gameObject.SetActive(show);
     }
     #endregion
 
@@ -372,20 +228,6 @@ public class Matching : MonoBehaviour
         PrintDebugMsg("Loaded.");
 
         S = this;
-
-        if (PlayerPrefs.HasKey("ProspectorHighScore")) HIGH_SCORE = PlayerPrefs.GetInt("ProspectorHighScore");
-        score += SCORE_FROM_PREV_ROUND;
-        SCORE_FROM_PREV_ROUND = 0;
-
-        GameObject go = GameObject.Find("GameOver");
-        if (go != null) gtGameOver = go.GetComponent<GUIText>();
-        go = GameObject.Find("RoundResult");
-        if (go != null) gtRoundResult = go.GetComponent<GUIText>();
-        ShowResultGTs(false);
-
-        go = GameObject.Find("HighScore");
-        string hScore = "High score: " + Utils.AddCommasToNumber(HIGH_SCORE);
-        go.GetComponent<GUIText>().text = hScore;
     }
     // Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
     void Start()
@@ -397,7 +239,7 @@ public class Matching : MonoBehaviour
         layout = GetComponent<MatchingLayout>();
         layout.ReadLayout(layoutXML.text);
 
-        drawPile = ConvertListCardsToListCardProspector(deck.cards);
+        cmDeck = ConvertListCardsToListCardMatching(deck.cards);
         LayoutGame();
     }
     // This function is called every fixed framerate frame, if the MonoBehaviour is enabled.

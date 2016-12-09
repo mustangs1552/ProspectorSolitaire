@@ -20,7 +20,7 @@ public class CardProspector : Card
 
     #region Public
     public CardState state = CardState.drawpile;
-    public List<CardProspector> hiddenBy = new List<CardProspector>();
+    public List<CardMatching> hiddenBy = new List<CardMatching>();
     public int layoutID;
     public SlotDef slotDef;
     #endregion

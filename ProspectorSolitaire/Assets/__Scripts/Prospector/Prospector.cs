@@ -38,11 +38,11 @@ public class Prospector : MonoBehaviour
     public float yOffset = -2.5f;
     public Transform layoutAnchor;
 
-    public CardProspector target;
-    public List<CardProspector> tableau;
-    public List<CardProspector> discardPile;
+    public CardMatching target;
+    public List<CardMatching> tableau;
+    public List<CardMatching> discardPile;
 
-    public List<CardProspector> drawPile;
+    public List<CardMatching> drawPile;
 
     public int chain = 0;
     public int scoreRun = 0;
@@ -98,7 +98,7 @@ public class Prospector : MonoBehaviour
         CheckForGameOver();
     }
 
-    public bool AdjacentRank(CardProspector c0, CardProspector c1)
+    public bool AdjacentRank(CardMatching c0, CardMatching c1)
     {
         if (!c0.FaceUp || !c1.FaceUp) return false;
 
@@ -111,21 +111,21 @@ public class Prospector : MonoBehaviour
     #endregion
 
     #region Private
-    private List<CardProspector> ConvertListCardsToListCardProspector(List<Card> lCD)
+    private List<CardMatching> ConvertListCardsToListCardMatching(List<Card> lCD)
     {
-        List<CardProspector> lCP = new List<CardProspector>();
-        CardProspector tCP;
+        List<CardMatching> lCP = new List<CardMatching>();
+        CardMatching tCP;
         foreach(Card tCD in lCD)
         {
-            tCP = tCD as CardProspector;
+            tCP = tCD as CardMatching;
             lCP.Add(tCP);
         }
         return lCP;
     }
 
-    private CardProspector Draw()
+    private CardMatching Draw()
     {
-        CardProspector cd = drawPile[0];
+        CardMatching cd = drawPile[0];
         drawPile.RemoveAt(0);
         return cd;
     }
@@ -139,7 +139,7 @@ public class Prospector : MonoBehaviour
             layoutAnchor.transform.position = layoutCenter;
         }
 
-        CardProspector cp;
+        CardMatching cp;
         foreach(SlotDef tSD in layout.slotDefs)
         {
             cp = Draw();
@@ -155,7 +155,7 @@ public class Prospector : MonoBehaviour
             tableau.Add(cp);
         }
 
-        foreach(CardProspector tCP in tableau)
+        foreach(CardMatching tCP in tableau)
         {
             foreach(int hid in tCP.slotDef.hiddenBy)
             {
@@ -168,7 +168,7 @@ public class Prospector : MonoBehaviour
         UpdateDrawPile();
     }
 
-    private void MoveToDiscard(CardProspector cd)
+    private void MoveToDiscard(CardMatching cd)
     {
         cd.state = CardState.discard;
         discardPile.Add(cd);
@@ -179,7 +179,7 @@ public class Prospector : MonoBehaviour
         cd.SetSortOrder(-100 + discardPile.Count);
     }
 
-    private void MoveToTarget(CardProspector cd)
+    private void MoveToTarget(CardMatching cd)
     {
         if (target != null) MoveToDiscard(target);
         target = cd;
@@ -193,7 +193,7 @@ public class Prospector : MonoBehaviour
 
     private void UpdateDrawPile()
     {
-        CardProspector cd;
+        CardMatching cd;
         for(int i = 0; i < drawPile.Count; i++)
         {
             cd = drawPile[i];
@@ -207,9 +207,9 @@ public class Prospector : MonoBehaviour
         }
     }
 
-    private CardProspector FindCardByLayoutID(int layoutID)
+    private CardMatching FindCardByLayoutID(int layoutID)
     {
-        foreach(CardProspector tCP in tableau)
+        foreach(CardMatching tCP in tableau)
         {
             if (tCP.layoutID == layoutID) return tCP;
         }
@@ -219,10 +219,10 @@ public class Prospector : MonoBehaviour
 
     private void SetTableauFaces()
     {
-        foreach(CardProspector cd in tableau)
+        foreach(CardMatching cd in tableau)
         {
             bool fUp = true;
-            foreach(CardProspector cover in cd.hiddenBy)
+            foreach(CardMatching cover in cd.hiddenBy)
             {
                 if (cover.state == CardState.tableau) fUp = false;
             }
@@ -238,7 +238,7 @@ public class Prospector : MonoBehaviour
             return;
         }
         if (drawPile.Count > 0) return;
-        foreach(CardProspector cd in tableau)
+        foreach(CardMatching cd in tableau)
         {
             if (AdjacentRank(cd, target)) return;
         }
@@ -399,7 +399,7 @@ public class Prospector : MonoBehaviour
         layout = GetComponent<Layout>();
         layout.ReadLayout(layoutXML.text);
 
-        drawPile = ConvertListCardsToListCardProspector(deck.cards);
+        drawPile = ConvertListCardsToListCardMatching(deck.cards);
         LayoutGame();
     }
     // This function is called every fixed framerate frame, if the MonoBehaviour is enabled.

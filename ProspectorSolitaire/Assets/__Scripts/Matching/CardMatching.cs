@@ -5,10 +5,9 @@ using System.Collections.Generic;
 
 public enum CardStateMatching
 {
-    drawpile,
-    tableau,
-    target,
-    discard
+    GroupOne,
+    GroupTwo,
+    Matched,
 }
 
 public class CardMatching : Card
@@ -19,8 +18,8 @@ public class CardMatching : Card
     #endregion
 
     #region Public
-    public CardState state = CardState.drawpile;
-    public List<CardProspector> hiddenBy = new List<CardProspector>();
+    public CardStateMatching state = CardStateMatching.GroupOne;
+    public List<CardMatching> hiddenBy = new List<CardMatching>();
     public int layoutID;
     public SlotDef slotDef;
     #endregion
@@ -38,7 +37,7 @@ public class CardMatching : Card
     #region Public
     public override void OnMouseUpAsButton()
     {
-        //Prospector.S.CardClicked(this);
+        Matching.S.CardClicked(this);
         base.OnMouseUpAsButton();
     }
     #endregion
