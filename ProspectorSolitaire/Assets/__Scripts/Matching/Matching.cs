@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
-public enum ScoreEvent
+public enum TurnPhaseMatching
 {
     draw,
     mine,
@@ -13,7 +13,7 @@ public enum ScoreEvent
     gameLoss
 }
 
-public class Prospector : MonoBehaviour
+public class Matching : MonoBehaviour
 {
     #region GlobalVareables
     #region DefaultVareables
@@ -22,7 +22,7 @@ public class Prospector : MonoBehaviour
     #endregion
 
     #region Static
-    public static Prospector S;
+    public static Matching S;
     public static int SCORE_FROM_PREV_ROUND = 0;
     public static int HIGH_SCORE = 0;
     #endregion
@@ -31,7 +31,7 @@ public class Prospector : MonoBehaviour
     public Deck deck;
     public TextAsset deckXML;
 
-    public Layout layout;
+    public MatchingLayout layout;
     public TextAsset layoutXML;
     public Vector3 layoutCenter;
     public float xOffset = 3;
@@ -81,7 +81,7 @@ public class Prospector : MonoBehaviour
                 MoveToDiscard(target);
                 MoveToTarget(Draw());
                 UpdateDrawPile();
-                ScoreManager(ScoreEvent.draw);
+                ScoreManager(TurnPhaseMatching.draw);
                 break;
             case CardState.tableau:
                 bool validMatch = true;
@@ -91,7 +91,7 @@ public class Prospector : MonoBehaviour
                 tableau.Remove(cd);
                 MoveToTarget(cd);
                 SetTableauFaces();
-                ScoreManager(ScoreEvent.mine);
+                ScoreManager(TurnPhaseMatching.mine);
                 break;
         }
 
@@ -131,7 +131,7 @@ public class Prospector : MonoBehaviour
     }
 
     private void LayoutGame()
-    {
+    {/*
         if(layoutAnchor == null)
         {
             GameObject tGO = new GameObject("layoutAnchor");
@@ -165,22 +165,22 @@ public class Prospector : MonoBehaviour
         }
 
         MoveToTarget(Draw());
-        UpdateDrawPile();
+        UpdateDrawPile();*/
     }
 
     private void MoveToDiscard(CardProspector cd)
-    {
+    {/*
         cd.state = CardState.discard;
         discardPile.Add(cd);
         cd.transform.parent = layoutAnchor;
         cd.transform.localPosition = new Vector3(layout.multiplier.x * layout.discardPile.x, layout.multiplier.y * layout.discardPile.y, -layout.discardPile.layerID + .5f);
         cd.FaceUp = true;
         cd.SetSortingLayerName(layout.discardPile.layerName);
-        cd.SetSortOrder(-100 + discardPile.Count);
+        cd.SetSortOrder(-100 + discardPile.Count);*/
     }
 
     private void MoveToTarget(CardProspector cd)
-    {
+    {/*
         if (target != null) MoveToDiscard(target);
         target = cd;
         cd.state = CardState.target;
@@ -188,11 +188,11 @@ public class Prospector : MonoBehaviour
         cd.transform.localPosition = new Vector3(layout.multiplier.x * layout.discardPile.x, layout.multiplier.y * layout.discardPile.y, -layout.discardPile.layerID);
         cd.FaceUp = true;
         cd.SetSortingLayerName(layout.discardPile.layerName);
-        cd.SetSortOrder(0);
+        cd.SetSortOrder(0);*/
     }
 
     private void UpdateDrawPile()
-    {
+    {/*
         CardProspector cd;
         for(int i = 0; i < drawPile.Count; i++)
         {
@@ -204,7 +204,7 @@ public class Prospector : MonoBehaviour
             cd.state = CardState.drawpile;
             cd.SetSortingLayerName(layout.drawPile.layerName);
             cd.SetSortOrder(-10 * i);
-        }
+        }*/
     }
 
     private CardProspector FindCardByLayoutID(int layoutID)
@@ -248,8 +248,8 @@ public class Prospector : MonoBehaviour
 
     private void GameOver(bool won)
     {
-        if (won) ScoreManager(ScoreEvent.gameWin);
-        else ScoreManager(ScoreEvent.gameLoss);
+        if (won) ScoreManager(TurnPhaseMatching.gameWin);
+        else ScoreManager(TurnPhaseMatching.gameLoss);
         Invoke("ReloadLevel", reloadDelay);
     }
     private void ReloadLevel()
@@ -257,14 +257,14 @@ public class Prospector : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
-    private void ScoreManager(ScoreEvent sEvt)
+    private void ScoreManager(TurnPhaseMatching sEvt)
     {
         List<Vector3> fsPts;
         switch(sEvt)
         {
-            case ScoreEvent.draw:
-            case ScoreEvent.gameWin:
-            case ScoreEvent.gameLoss:
+            case TurnPhaseMatching.draw:
+            case TurnPhaseMatching.gameWin:
+            case TurnPhaseMatching.gameLoss:
                 chain = 0;
                 score += scoreRun;
                 scoreRun = 0;
@@ -280,7 +280,7 @@ public class Prospector : MonoBehaviour
                     fsRun = null;
                 }
                 break;
-            case ScoreEvent.mine:
+            case TurnPhaseMatching.mine:
                 chain++;
                 scoreRun += chain;
                 FloatingScore fs;
@@ -304,21 +304,21 @@ public class Prospector : MonoBehaviour
 
         switch(sEvt)
         {
-            case ScoreEvent.gameWin:
+            case TurnPhaseMatching.gameWin:
                 gtGameOver.text = "Round Over";
-                Prospector.SCORE_FROM_PREV_ROUND = score;
+                Matching.SCORE_FROM_PREV_ROUND = score;
                 PrintDebugMsg("You won this round! Round score: " + score);
                 gtRoundResult.text = "You won this round!\nRound score: " + score;
                 ShowResultGTs(true);
                 break;
-            case ScoreEvent.gameLoss:
+            case TurnPhaseMatching.gameLoss:
                 gtGameOver.text = "Game Over";
-                if (Prospector.HIGH_SCORE <= score)
+                if (Matching.HIGH_SCORE <= score)
                 {
                     PrintDebugMsg("You got the high score! High score: " + score);
                     string sRR = "You got the high score!\nHigh score: " + score;
                     gtRoundResult.text = sRR;
-                    Prospector.HIGH_SCORE = score;
+                    Matching.HIGH_SCORE = score;
                     PlayerPrefs.SetInt("ProspectorHighScore", score);
                 }
                 else
@@ -390,13 +390,11 @@ public class Prospector : MonoBehaviour
     // Start is called on the frame when a script is enabled just before any of the Update methods is called the first time.
     void Start()
     {
-        Scoreboard.S.Score = score;
-
         deck = GetComponent<Deck>();
         deck.InitDeck(deckXML.text);
         Deck.Shuffle(ref deck.cards);
 
-        layout = GetComponent<Layout>();
+        layout = GetComponent<MatchingLayout>();
         layout.ReadLayout(layoutXML.text);
 
         drawPile = ConvertListCardsToListCardProspector(deck.cards);

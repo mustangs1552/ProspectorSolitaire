@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
-public enum ScoreEventTwo
+public enum ScoreEvent
 {
     draw,
     mine,
@@ -13,7 +13,7 @@ public enum ScoreEventTwo
     gameLoss
 }
 
-public class ProspectorTwo : MonoBehaviour
+public class Prospector : MonoBehaviour
 {
     #region GlobalVareables
     #region DefaultVareables
@@ -22,7 +22,7 @@ public class ProspectorTwo : MonoBehaviour
     #endregion
 
     #region Static
-    public static ProspectorTwo S;
+    public static Prospector S;
     public static int SCORE_FROM_PREV_ROUND = 0;
     public static int HIGH_SCORE = 0;
     #endregion

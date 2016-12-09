@@ -81,7 +81,7 @@
     <Compile Include="Assets\__Scripts\PT_XMLReader.cs" />
     <Compile Include="Assets\__Scripts\Prospector\CardProspector.cs" />
     <Compile Include="Assets\__Scripts\Prospector\Layout.cs" />
-    <Compile Include="Assets\__Scripts\Prospector\ProspectorTwo.cs" />
+    <Compile Include="Assets\__Scripts\Prospector\Prospector.cs" />
     <Compile Include="Assets\__Scripts\Scoreboard.cs" />
     <Compile Include="Assets\__Scripts\Solitaire\CardSolitaire.cs" />
     <Compile Include="Assets\__Scripts\Solitaire\LayoutSolitaire.cs" />
