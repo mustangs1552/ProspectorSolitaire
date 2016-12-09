@@ -23,7 +23,7 @@ public class MatchingLayout : MonoBehaviour
     #region GlobalVareables
     #region DefaultVareables
     public bool isDebug = false;
-    private string debugScriptName = "BartokLayout";
+    private string debugScriptName = "MatchingLayout";
     #endregion
 
     #region Static
@@ -34,7 +34,6 @@ public class MatchingLayout : MonoBehaviour
     public PT_XMLReader xmlr;
     public PT_XMLHashtable xml;
     public Vector2 multiplier;
-    public float groupTwoOffset;
     public List<SlotDefMatching> cardGroupOne;
     public List<SlotDefMatching> cardGroupTwo;
     public SlotDefMatching playerOneMatches;
@@ -61,8 +60,6 @@ public class MatchingLayout : MonoBehaviour
         multiplier.x = float.Parse(xml["multiplier"][0].att("x"));
         multiplier.y = float.Parse(xml["multiplier"][0].att("y"));
 
-        groupTwoOffset = float.Parse(xml["grouptwooffset"][0].att("x"));
-
         SlotDefMatching tSD;
         PT_XMLHashList slotsX = xml["slot"];
 
@@ -84,6 +81,8 @@ public class MatchingLayout : MonoBehaviour
                 case "slot":
                     tSD.id = int.Parse(slotsX[i].att("id"));
                     tSD.faceUp = (slotsX[i].att("faceup") == "1");
+                    if (tSD.id <= 25) cardGroupOne.Add(tSD);
+                    else cardGroupTwo.Add(tSD);
                     break;
                 case "matchesP1":
                     playerOneMatches = tSD;
