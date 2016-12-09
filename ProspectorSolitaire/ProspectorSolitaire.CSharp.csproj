@@ -73,12 +73,15 @@
     <Compile Include="Assets\__Scripts\Bartok\CardBartok.cs" />
     <Compile Include="Assets\__Scripts\Bartok\Player.cs" />
     <Compile Include="Assets\__Scripts\Card.cs" />
-    <Compile Include="Assets\__Scripts\CardProspector.cs" />
     <Compile Include="Assets\__Scripts\Deck.cs" />
     <Compile Include="Assets\__Scripts\FloatingScore.cs" />
-    <Compile Include="Assets\__Scripts\Layout.cs" />
+    <Compile Include="Assets\__Scripts\Matching\CardMatching.cs" />
+    <Compile Include="Assets\__Scripts\Matching\Matching.cs" />
+    <Compile Include="Assets\__Scripts\Matching\MatchingLayout.cs" />
     <Compile Include="Assets\__Scripts\PT_XMLReader.cs" />
-    <Compile Include="Assets\__Scripts\Prospector.cs" />
+    <Compile Include="Assets\__Scripts\Prospector\CardProspector.cs" />
+    <Compile Include="Assets\__Scripts\Prospector\Layout.cs" />
+    <Compile Include="Assets\__Scripts\Prospector\ProspectorTwo.cs" />
     <Compile Include="Assets\__Scripts\Scoreboard.cs" />
     <Compile Include="Assets\__Scripts\Solitaire\CardSolitaire.cs" />
     <Compile Include="Assets\__Scripts\Solitaire\LayoutSolitaire.cs" />
@@ -88,10 +91,10 @@
   <ItemGroup>
     <None Include="Assets\Resources\DeckXML.xml" />
     <None Include="Assets\Resources\LayoutXML.xml" />
-    <None Include="Assets\Resources\LayoutXMLSolitaire.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Assets\Resources\LayoutXMLBartok.xml" />
+    <None Include="Assets\Resources\LayoutXMLMatching.xml" />
+    <None Include="Assets\Resources\LayoutXMLSolitaire - Copy.xml" />
+    <None Include="Assets\Resources\LayoutXMLSolitaire.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>

@@ -1,0 +1,50 @@
+<xml>
+	<!-- This file holds info for laying out the Prospector card game. -->
+	
+	<!-- The multiplier is multiplied by the x and y attributes below. -->
+	<!-- This determines how loose or tight the layout is. --> 
+	<multiplier x="1.25" y="1.5" />
+	
+	<!-- In the XML below, id is the number of the card -->
+	<!-- x and y set position -->
+	<!-- faceup is 1 if the card is face-up -->
+	<!-- layer sets which column it is -->
+	<!-- hiddenby is the ids of cards that keep a card face-down -->
+	
+	<!-- First group -->
+	<slot id="0" x="-4.6" y="7.6" faceup="0" layer="0" />
+  <slot id="1" x="-1.6" y="7.6" faceup="0" layer="0" />
+  <slot id="2" x="1.4" y="7.6" faceup="0" layer="0" />
+  <slot id="3" x="4.4" y="7.6" faceup="0" layer="0" />
+  <slot id="4" x="7.4" y="3.85" faceup="0" layer="0" />
+  <slot id="5" x="4.4" y="3.85" faceup="0" layer="0" />
+  <slot id="6" x="1.4" y="3.85" faceup="0" layer="0" />
+  <slot id="7" x="-1.6" y="3.85" faceup="0" layer="0" />
+  <slot id="8" x="-4.6" y="3.85" faceup="0" layer="0" />
+  <slot id="9" x="-7.6" y="3.85" faceup="0" layer="0" />
+  <slot id="10" x="-7.6" y=".1" faceup="0" layer="0" />
+  <slot id="11" x="-4.6" y=".1" faceup="0" layer="0" />
+  <slot id="12" x="-1.6" y=".1" faceup="0" layer="0" />
+  <slot id="13" x="1.4" y=".1" faceup="0" layer="0" />
+  <slot id="14" x="4.4" y=".1" faceup="0" layer="0" />
+  <slot id="15" x="7.4" y=".1" faceup="0" layer="0" />
+  <slot id="16" x="7.4" y="-3.65" faceup="0" layer="0" />
+  <slot id="17" x="4.4" y="-3.65" faceup="0" layer="0" />
+  <slot id="18" x="1.4" y="-3.65" faceup="0" layer="0" />
+  <slot id="19" x="-1.6" y="-3.65" faceup="0" layer="0" />
+  <slot id="20" x="-4.6" y="-3.65" faceup="0" layer="0" />
+  <slot id="21" x="-7.6" y="-3.65" faceup="0" layer="0" />
+  <slot id="22" x="-4.6" y="-7.4" faceup="0" layer="0" />
+  <slot id="23" x="-1.6" y="-7.4" faceup="0" layer="0" />
+  <slot id="24" x="1.4" y="-7.4" faceup="0" layer="0" />
+  <slot id="25" x="4.4" y="-7.4" faceup="0" layer="0" />
+
+  <!-- Amount to the side to place the second group -->
+  <grouptwooffset x="10"/>
+  
+	<!-- This positions the collected matches for each player -->
+	<slot type="matchesP1" x="-11.4" y=".1" layer="1"/>
+  <slot type="matchesP2" x="10.9" y=".1" layer="1"/>
+	
+</xml>
+	
