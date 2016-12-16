@@ -8,7 +8,8 @@ using UnityEngine.UI;
 public enum GameState
 {
     GroupOne,
-    GroupTwo
+    GroupTwo,
+    GameEnd
 }
 
 public enum TurnPhaseMatching
@@ -44,7 +45,6 @@ public class Matching : MonoBehaviour
     public float groupTwoCenterX = 22.9f;
     public float matchCheckDelay = 1.5f;
     public float reloadDelay = 3;
-    public bool hardMode = false;
     public bool playerTwoIsAI = true;
 
     public List<CardMatching> cmDeck;
@@ -83,7 +83,7 @@ public class Matching : MonoBehaviour
     #region Public
     public void CardClicked(CardMatching cd)
     {
-        if(cd.state != CardStateMatching.Matched && pickTwo == null)
+        if(state != GameState.GameEnd && cd.state != CardStateMatching.Matched && pickTwo == null)
         {
             if (pickOne == null)
             {
@@ -108,8 +108,8 @@ public class Matching : MonoBehaviour
     public bool CardMatch(CardMatching c0, CardMatching c1)
     {
         if (c0 == c1) return false;
-        if (hardMode && c0.rank == c1.rank) return true;
-        if (!hardMode && c0.suit == c1.suit) return true;
+        if (c0.rank == c1.rank) return true;
+        //if (c0.suit == c1.suit) return true;
 
         return false;
     }
@@ -205,7 +205,7 @@ public class Matching : MonoBehaviour
 
     private void ReloadLevel()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene("matchingGame");
     }
 
     private void Shuffle(ref List<CardMatching> oCards)
@@ -277,6 +277,8 @@ public class Matching : MonoBehaviour
                 break;
         }
 
+        pickOne.state = CardStateMatching.Matched;
+        pickTwo.state = CardStateMatching.Matched;
         pickOne = null;
         pickTwo = null;
         
@@ -326,6 +328,8 @@ public class Matching : MonoBehaviour
     }
     private void Victory()
     {
+        state = GameState.GameEnd;
+
         if (playerOneMatches.Count > playerTwoMatches.Count)
         {
             PrintDebugMsg("Player one won!");
@@ -359,14 +363,16 @@ public class Matching : MonoBehaviour
             if (state == GameState.GroupOne)
             {
                 randOne = Random.Range(0, cardGroupOne.Count);
-                while (randTwo != randOne) randTwo = Random.Range(0, cardGroupOne.Count);
+                randTwo = Random.Range(0, cardGroupOne.Count);
+                while (randTwo == randOne) randTwo = Random.Range(0, cardGroupOne.Count);
                 CardClicked(cardGroupOne[randOne]);
                 CardClicked(cardGroupOne[randTwo]);
             }
-            else
+            else if(state == GameState.GroupTwo)
             {
                 randOne = Random.Range(0, cardGroupTwo.Count);
-                while (randTwo != randOne) randTwo = Random.Range(0, cardGroupTwo.Count);
+                randTwo = Random.Range(0, cardGroupTwo.Count);
+                while (randTwo == randOne) randTwo = Random.Range(0, cardGroupTwo.Count);
                 CardClicked(cardGroupTwo[randOne]);
                 CardClicked(cardGroupTwo[randTwo]);
             }
