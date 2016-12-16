@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public enum GameState
 {
@@ -38,6 +39,13 @@ public class Matching : MonoBehaviour
     public float xOffset = 3;
     public float yOffset = -2.5f;
     public Transform layoutAnchor;
+    public GameObject playerOneMatchesAnchor;
+    public GameObject playerTwoMatchesAnchor;
+    public float groupTwoCenterX = 22.9f;
+    public float matchCheckDelay = 1.5f;
+    public float reloadDelay = 3;
+    public bool hardMode = false;
+    public bool playerTwoIsAI = true;
 
     public List<CardMatching> cmDeck;
     public List<CardMatching> cardGroupOne;
@@ -46,7 +54,20 @@ public class Matching : MonoBehaviour
     public List<CardMatching> playerTwoMatches;
 
     public GameState state = GameState.GroupOne;
-    public TurnPhaseMatching turnState = TurnPhaseMatching.PlayerTwo;
+    public TurnPhaseMatching turnState = TurnPhaseMatching.PlayerOne;
+
+    public CardMatching pickOne = null;
+    public CardMatching pickTwo = null;
+    int randOne = -1;
+    int randTwo = -1;
+    public bool aiChose = false;
+
+    public int playerOneMatchAttempts = 0;
+    public int playerTwoMatchAttempts = 0;
+    
+    public Text playerOneScoreText = null;
+    public Text playerTwoScoreText = null;
+    public Text victoryText = null;
     #endregion
 
     #region Private
@@ -62,23 +83,33 @@ public class Matching : MonoBehaviour
     #region Public
     public void CardClicked(CardMatching cd)
     {
-        switch(cd.state)
+        if(cd.state != CardStateMatching.Matched && pickTwo == null)
         {
-            case CardStateMatching.GroupOne:
-                break;
-            case CardStateMatching.GroupTwo:
-                break;
-            case CardStateMatching.Matched:
-                break;
+            if (pickOne == null)
+            {
+                pickOne = cd;
+                pickOne.FaceUp = true;
+            }
+            else if (pickOne != cd && CardMatch(pickOne, cd))
+            {
+                pickTwo = cd;
+                pickTwo.FaceUp = true;
+                Invoke("CardMatchSuccessful", matchCheckDelay);
+            }
+            else if (pickOne != cd)
+            {
+                pickTwo = cd;
+                pickTwo.FaceUp = true;
+                Invoke("CardMatchUnsuccessful", matchCheckDelay);
+            }
         }
     }
 
     public bool CardMatch(CardMatching c0, CardMatching c1)
     {
-        if (!c0.FaceUp || !c1.FaceUp) return false;
-        
-        if (c0.rank == c1.rank) return true;
-        if (c0.suit == c1.suit) return true;
+        if (c0 == c1) return false;
+        if (hardMode && c0.rank == c1.rank) return true;
+        if (!hardMode && c0.suit == c1.suit) return true;
 
         return false;
     }
@@ -106,34 +137,14 @@ public class Matching : MonoBehaviour
             layoutAnchor.transform.position = layoutCenter;
         }
 
-        CardMatching cm;
-        /*
-        foreach(SlotDef tSD in layout.slotDefs)
-        {
-            cp = Draw();
-            cp.FaceUp = tSD.faceUp;
-            cp.transform.parent = layoutAnchor;
-            cp.transform.localPosition = new Vector3(layout.multiplier.x * tSD.x, layout.multiplier.y * tSD.y, -tSD.layerID);
-            cp.layoutID = tSD.id;
-            cp.slotDef = tSD;
-            cp.state = CardState.tableau;
+        playerOneMatchesAnchor = new GameObject("PlayerOneMatchesAnchor");
+        playerOneMatchesAnchor.transform.position = new Vector2(layout.playerOneMatches.x, layout.playerOneMatches.y);
+        playerOneMatchesAnchor.transform.parent = Camera.main.transform;
+        playerTwoMatchesAnchor = new GameObject("PlayerTwoMatchesAnchor");
+        playerTwoMatchesAnchor.transform.position = new Vector2(layout.playerTwoMatches.x, layout.playerTwoMatches.y);
+        playerTwoMatchesAnchor.transform.parent = Camera.main.transform;
 
-            cp.SetSortingLayerName(tSD.layerName);
-
-            tableau.Add(cp);
-        }
-
-        foreach(CardMatching tCP in tableau)
-        {
-            foreach(int hid in tCP.slotDef.hiddenBy)
-            {
-                cp = FindCardByLayoutID(hid);
-                tCP.hiddenBy.Add(cp);
-            }
-        }*/
-
-        int i = 0;
-        for(i = 0; i < layout.cardGroupOne.Count; i++)
+        for (int i = 0; i < layout.cardGroupOne.Count; i++)
         {
             cardGroupOne.Add(cmDeck[i]);
             cmDeck.Remove(cmDeck[i]);
@@ -143,23 +154,24 @@ public class Matching : MonoBehaviour
                 {
                     cardGroupOne.Add(tCM);
                     cmDeck.Remove(tCM);
+                    i++;
                     break;
                 }
             }
         }
-        for (int ii = i; ii < layout.cardGroupTwo.Count; ii++)
+        for (int i = 0; i < layout.cardGroupTwo.Count; i++) cardGroupTwo = cmDeck;
+        Shuffle(ref cardGroupOne);
+        Shuffle(ref cardGroupTwo);
+
+        for (int i = 0; i < layout.cardGroupOne.Count; i++)
         {
-            cardGroupTwo.Add(cmDeck[ii]);
-            cmDeck.Remove(cmDeck[ii]);
-            foreach (CardMatching tCM in cmDeck)
-            {
-                if (CardMatch(tCM, cardGroupTwo[cardGroupTwo.Count - 1]))
-                {
-                    cardGroupTwo.Add(tCM);
-                    cmDeck.Remove(tCM);
-                    break;
-                }
-            }
+            cardGroupOne[i].transform.position = new Vector2(layout.cardGroupOne[i].x, layout.cardGroupOne[i].y);
+            cardGroupOne[i].FaceUp = false;
+        }
+        for (int i = 0; i < layout.cardGroupTwo.Count; i++)
+        {
+            cardGroupTwo[i].transform.position = new Vector2(layout.cardGroupTwo[i].x, layout.cardGroupTwo[i].y);
+            cardGroupTwo[i].FaceUp = false;
         }
     }
 
@@ -194,6 +206,175 @@ public class Matching : MonoBehaviour
     private void ReloadLevel()
     {
         SceneManager.LoadScene(0);
+    }
+
+    private void Shuffle(ref List<CardMatching> oCards)
+    {
+        List<CardMatching> tCards = new List<CardMatching>();
+
+        int ndx;
+        tCards = new List<CardMatching>();
+        while (oCards.Count > 0)
+        {
+            ndx = Random.Range(0, oCards.Count);
+            tCards.Add(oCards[ndx]);
+            oCards.RemoveAt(ndx);
+        }
+        oCards = tCards;
+    }
+
+    private void CardMatchSuccessful()
+    {
+        PrintDebugMsg("Match successful!");
+        if (turnState == TurnPhaseMatching.PlayerOne) playerOneMatchAttempts++;
+        else playerTwoMatchAttempts++;
+
+        if (turnState == TurnPhaseMatching.PlayerOne)
+        {
+            pickOne.transform.position = playerOneMatchesAnchor.transform.position;
+            pickTwo.transform.position = playerOneMatchesAnchor.transform.position;
+            pickOne.transform.parent = playerOneMatchesAnchor.transform;
+            pickTwo.transform.parent = playerOneMatchesAnchor.transform;
+        }
+        else
+        {
+            pickOne.transform.position = playerTwoMatchesAnchor.transform.position;
+            pickTwo.transform.position = playerTwoMatchesAnchor.transform.position;
+            pickOne.transform.parent = playerTwoMatchesAnchor.transform;
+            pickTwo.transform.parent = playerTwoMatchesAnchor.transform;
+        }
+
+        switch (state)
+        {
+            case GameState.GroupOne:
+                cardGroupOne.Remove(pickOne);
+                cardGroupOne.Remove(pickTwo);
+
+                if (turnState == TurnPhaseMatching.PlayerOne)
+                {
+                    playerOneMatches.Add(pickOne);
+                    playerOneMatches.Add(pickTwo);
+                }
+                else
+                {
+                    playerTwoMatches.Add(pickOne);
+                    playerTwoMatches.Add(pickTwo);
+                }
+                break;
+            case GameState.GroupTwo:
+                cardGroupTwo.Remove(pickOne);
+                cardGroupTwo.Remove(pickTwo);
+                if (turnState == TurnPhaseMatching.PlayerOne)
+                {
+                    playerOneMatches.Add(pickOne);
+                    playerOneMatches.Add(pickTwo);
+                }
+                else
+                {
+                    playerTwoMatches.Add(pickOne);
+                    playerTwoMatches.Add(pickTwo);
+                }
+                break;
+        }
+
+        pickOne = null;
+        pickTwo = null;
+        
+        UpdateUI();
+        CheckWin();
+        if (playerTwoIsAI) PlayAI();
+    }
+    private void CardMatchUnsuccessful()
+    {
+        PrintDebugMsg("Match unsuccessful!");
+        if(turnState == TurnPhaseMatching.PlayerOne) playerOneMatchAttempts++;
+        else playerTwoMatchAttempts++;
+
+        pickOne.FaceUp = false;
+        pickTwo.FaceUp = false;
+
+        pickOne = null;
+        pickTwo = null;
+
+        UpdateUI();
+        if (turnState == TurnPhaseMatching.PlayerOne)
+        {
+            turnState = TurnPhaseMatching.PlayerTwo;
+            if (playerTwoIsAI) PlayAI();
+        }
+        else turnState = TurnPhaseMatching.PlayerOne;
+    }
+
+    private void CheckWin()
+    {
+        switch(state)
+        {
+            case GameState.GroupOne:
+                if (cardGroupOne.Count == 0) SwitchToGroupTwo();
+                break;
+            case GameState.GroupTwo:
+                if (cardGroupTwo.Count == 0) Victory();
+                break;
+        }
+    }
+
+    private void SwitchToGroupTwo()
+    {
+        PrintDebugMsg("Switching to group two...");
+        state = GameState.GroupTwo;
+        Camera.main.transform.position = new Vector3(groupTwoCenterX, Camera.main.transform.position.y, Camera.main.transform.position.z);
+    }
+    private void Victory()
+    {
+        if (playerOneMatches.Count > playerTwoMatches.Count)
+        {
+            PrintDebugMsg("Player one won!");
+            victoryText.text = "Player one won!";
+        }
+        else if (playerOneMatches.Count < playerTwoMatches.Count)
+        {
+            PrintDebugMsg("Player Two won!");
+            victoryText.text = "Player two won!";
+        }
+        else
+        {
+            PrintDebugMsg("Draw!");
+            victoryText.text = "Draw!";
+        }
+
+        victoryText.gameObject.SetActive(true);
+        Invoke("ReloadLevel", reloadDelay);
+    }
+
+    private void UpdateUI()
+    {;
+        playerOneScoreText.text = playerOneMatches.Count / 2 + " / " + playerOneMatchAttempts;
+        playerTwoScoreText.text = playerTwoMatches.Count / 2 + " / " + playerTwoMatchAttempts;
+    }
+
+    private void PlayAI()
+    {
+        if (playerTwoIsAI && turnState == TurnPhaseMatching.PlayerTwo)
+        {
+            if (state == GameState.GroupOne)
+            {
+                randOne = Random.Range(0, cardGroupOne.Count);
+                while (randTwo != randOne) randTwo = Random.Range(0, cardGroupOne.Count);
+                CardClicked(cardGroupOne[randOne]);
+                CardClicked(cardGroupOne[randTwo]);
+            }
+            else
+            {
+                randOne = Random.Range(0, cardGroupTwo.Count);
+                while (randTwo != randOne) randTwo = Random.Range(0, cardGroupTwo.Count);
+                CardClicked(cardGroupTwo[randOne]);
+                CardClicked(cardGroupTwo[randTwo]);
+            }
+
+            PrintDebugMsg("AI chose: " + randOne + " and " + randTwo);
+            randOne = -1;
+            randTwo = -1;
+        }
     }
     #endregion
 
@@ -241,6 +422,8 @@ public class Matching : MonoBehaviour
 
         cmDeck = ConvertListCardsToListCardMatching(deck.cards);
         LayoutGame();
+
+        UpdateUI();
     }
     // This function is called every fixed framerate frame, if the MonoBehaviour is enabled.
     void FixedUpdate()
@@ -250,7 +433,7 @@ public class Matching : MonoBehaviour
     // Update is called every frame, if the MonoBehaviour is enabled.
     void Update()
     {
-
+        
     }
     // LateUpdate is called every frame after all other update functions, if the Behaviour is enabled.
     void LateUpdate()

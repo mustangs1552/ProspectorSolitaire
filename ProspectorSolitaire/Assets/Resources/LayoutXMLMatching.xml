@@ -44,36 +44,36 @@
   <slot id="25" x="4.4" y="-7.4" faceup="0" layer="0" />
 
   <!-- Second group -->
-  <slot id="26" x="15.4" y="7.6" faceup="0" layer="1" />
-  <slot id="27" x="18.4" y="7.6" faceup="0" layer="1" />
-  <slot id="28" x="21.4" y="7.6" faceup="0" layer="1" />
-  <slot id="29" x="24.4" y="7.6" faceup="0" layer="1" />
+  <slot id="26" x="18.4" y="7.6" faceup="0" layer="1" />
+  <slot id="27" x="21.4" y="7.6" faceup="0" layer="1" />
+  <slot id="28" x="24.4" y="7.6" faceup="0" layer="1" />
+  <slot id="29" x="27.4" y="7.6" faceup="0" layer="1" />
   
-  <slot id="30" x="27.4" y="3.85" faceup="0" layer="1" />
-  <slot id="31" x="24.4" y="3.85" faceup="0" layer="1" />
-  <slot id="32" x="21.4" y="3.85" faceup="0" layer="1" />
-  <slot id="33" x="18.4" y="3.85" faceup="0" layer="1" />
-  <slot id="34" x="15.4" y="3.85" faceup="0" layer="1" />
-  <slot id="35" x="12.4" y="3.85" faceup="0" layer="1" />
+  <slot id="30" x="30.4" y="3.85" faceup="0" layer="1" />
+  <slot id="31" x="27.4" y="3.85" faceup="0" layer="1" />
+  <slot id="32" x="24.4" y="3.85" faceup="0" layer="1" />
+  <slot id="33" x="21.4" y="3.85" faceup="0" layer="1" />
+  <slot id="34" x="18.4" y="3.85" faceup="0" layer="1" />
+  <slot id="35" x="15.4" y="3.85" faceup="0" layer="1" />
 
-  <slot id="36" x="12.4" y=".1" faceup="0" layer="1" />
-  <slot id="37" x="15.4" y=".1" faceup="0" layer="1" />
-  <slot id="38" x="18.4" y=".1" faceup="0" layer="1" />
-  <slot id="39" x="21.4" y=".1" faceup="0" layer="1" />
-  <slot id="40" x="24.4" y=".1" faceup="0" layer="1" />
-  <slot id="41" x="27.4" y=".1" faceup="0" layer="1" />
+  <slot id="36" x="15.4" y=".1" faceup="0" layer="1" />
+  <slot id="37" x="18.4" y=".1" faceup="0" layer="1" />
+  <slot id="38" x="21.4" y=".1" faceup="0" layer="1" />
+  <slot id="39" x="24.4" y=".1" faceup="0" layer="1" />
+  <slot id="40" x="27.4" y=".1" faceup="0" layer="1" />
+  <slot id="41" x="30.4" y=".1" faceup="0" layer="1" />
   
-  <slot id="42" x="27.4" y="-3.65" faceup="0" layer="1" />
-  <slot id="43" x="24.4" y="-3.65" faceup="0" layer="1" />
-  <slot id="44" x="21.4" y="-3.65" faceup="0" layer="1" />
-  <slot id="45" x="18.4" y="-3.65" faceup="0" layer="1" />
-  <slot id="46" x="15.4" y="-3.65" faceup="0" layer="1" />
-  <slot id="47" x="12.4" y="-3.65" faceup="0" layer="1" />
+  <slot id="42" x="30.4" y="-3.65" faceup="0" layer="1" />
+  <slot id="43" x="27.4" y="-3.65" faceup="0" layer="1" />
+  <slot id="44" x="24.4" y="-3.65" faceup="0" layer="1" />
+  <slot id="45" x="21.4" y="-3.65" faceup="0" layer="1" />
+  <slot id="46" x="18.4" y="-3.65" faceup="0" layer="1" />
+  <slot id="47" x="15.4" y="-3.65" faceup="0" layer="1" />
   
-  <slot id="48" x="15.4" y="-7.4" faceup="0" layer="1" />
-  <slot id="49" x="18.4" y="-7.4" faceup="0" layer="1" />
-  <slot id="50" x="21.4" y="-7.4" faceup="0" layer="1" />
-  <slot id="51" x="24.4" y="-7.4" faceup="0" layer="1" />
+  <slot id="48" x="18.4" y="-7.4" faceup="0" layer="1" />
+  <slot id="49" x="21.4" y="-7.4" faceup="0" layer="1" />
+  <slot id="50" x="24.4" y="-7.4" faceup="0" layer="1" />
+  <slot id="51" x="27.4" y="-7.4" faceup="0" layer="1" />
   
 	<!-- This positions the collected matches for each player -->
 	<slot type="matchesP1" x="-11.4" y=".1" layer="2"/>
