@@ -45,6 +45,7 @@ public class Matching : MonoBehaviour
     public float groupTwoCenterX = 22.9f;
     public float matchCheckDelay = 1.5f;
     public float reloadDelay = 3;
+    public bool singlePlayer = false;
     public bool playerTwoIsAI = true;
 
     public List<CardMatching> cmDeck;
@@ -299,7 +300,7 @@ public class Matching : MonoBehaviour
         pickTwo = null;
 
         UpdateUI();
-        if (turnState == TurnPhaseMatching.PlayerOne)
+        if (turnState == TurnPhaseMatching.PlayerOne && !singlePlayer)
         {
             turnState = TurnPhaseMatching.PlayerTwo;
             if (playerTwoIsAI) PlayAI();
@@ -353,7 +354,8 @@ public class Matching : MonoBehaviour
     private void UpdateUI()
     {;
         playerOneScoreText.text = playerOneMatches.Count / 2 + " / " + playerOneMatchAttempts;
-        playerTwoScoreText.text = playerTwoMatches.Count / 2 + " / " + playerTwoMatchAttempts;
+        if(!singlePlayer) playerTwoScoreText.text = playerTwoMatches.Count / 2 + " / " + playerTwoMatchAttempts;
+        else playerTwoScoreText.text = "";
     }
 
     private void PlayAI()
